@@ -6,8 +6,16 @@ export default class Map{
   constructor(options) {
     this.width = options.width
     this.height = options.height
-    this.numWindVectors = options.numWindVectors
-    this.windVectors = this.generateWindVectors(this.numWindVectors)
+    
+    this.defaultWindStrength = 40
+    if('windVectors' in options){
+      this.numWindVectors = options.windVectors.length
+      this.windVectors = options.windVectors.map((x)=>{return this.generateWindVector(x[0],x[1],x[2])})
+    }else{
+      this.numWindVectors = options.numWindVectors
+      this.windVectors = this.generateWindVectors(this.numWindVectors)
+    }
+    console.log(this.windVectors)
     this.windVectorLines = this.generateDisplayVectors(this.windVectors)
     this.windMap = this.generateWindMap(this.windVectors,30,20)
 
@@ -18,12 +26,17 @@ export default class Map{
   }
 
   generateRandomWindVector() {
-  	let c = new Phaser.Point(game.rnd.between(0,this.width),game.rnd.between(0,this.height))
+  	let c = {x:game.rnd.between(0,this.width),y:game.rnd.between(0,this.height)}
   	let rang = this.randAngle()
-  	let v = new Vector2(Math.cos(rang),Math.sin(rang))
+  	let v = {x:Math.cos(rang),y:Math.sin(rang)}
   	// TODO: Make this random maybe?
-  	let mag = 10
-  	return new VectorLine(c, v, 40)
+  	return generateWindVector(c, v, this.defaultWindStrength)
+  }
+
+  generateWindVector(c,v,s){
+    let c2 = new Phaser.Point(c.x,c.y)
+    let v2 = new Vector2(v.x,v.y)
+    return new VectorLine(c2, v2, s)
   }
 
   generateWindVectors(n) {
